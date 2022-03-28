@@ -17,8 +17,9 @@ keybinds.normal["up"] = "up"
 keybinds.normal["right"] = "right"
 
 keybinds.normal["x"] = "delChar"
-keybinds.normal["X"] = "delChar"
+keybinds.normal["X"] = "delCharBack"
 
+keybinds.normal["dd"] = "delLine"
 
 keybinds.normal["H"] = "moveHigh"
 keybinds.normal["M"] = "moveMiddle"

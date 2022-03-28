@@ -236,6 +236,14 @@ local functions = {
             moveActualCursor(-1, 0)
         end
     end,
+    delCharBack = function()
+        if actualX == 1 then return end
+        local line = buffer[actualY]
+        buffer[actualY] = line:sub(1, actualX-2) .. line:sub(actualX, #line)
+        changed = true
+        redrawLine(actualY)
+        moveActualCursor(-1, 0)
+    end,
 
     scrollDown = function() -- (content moves up)
         if scrollY < #buffer-1 then
@@ -333,11 +341,24 @@ local function onKeyInsert(char, code)
                 moveActualCursor(-1, 0)
             end
         elseif keyboard.keys[code] == 'enter' then
-            -- TODO: move text after cursor on the new line
-            table.insert(buffer, actualY+1, "")
-            gpu.copy(1, cursorY+1, w, h-cursorY-1, 0, 1)
+            local beforeCursor = string.sub(buffer[actualY], 0, actualX-1)
+            local afterCursor = string.sub(buffer[actualY], actualX, #buffer[actualY])
+
+            buffer[actualY] = beforeCursor
+            table.insert(buffer, actualY+1, afterCursor)
+
+            gpu.copy(1, cursorY+1, w, h-cursorY-1, 0, 1) -- move text down to make space for the new line
             gpu.fill(1, cursorY+1, w, 1, ' ')
-            moveActualCursor(0, 1)
+
+            redrawLine(actualY)
+            redrawLine(actualY+1)
+
+            setActualCursor(0, actualY+1, false)
+        elseif keyboard.keys[code] == 'back' then
+            functions.delCharBack()
+            --local line = buffer[actualY]
+            --buffer[actualY] = line:sub(1, actualX-2) .. line:sub(actualX, #line)
+            --redrawLine(actualY)
         end
     end
 
